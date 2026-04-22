@@ -1,23 +1,23 @@
-const sql = require('mssql');
+const sql = require('mssql/msnodesqlv8');
 
 const config = {
-  server: process.env.DB_HOST,
-  database: process.env.DB_NAME,
+  server: 'localhost\\SQLEXPRESS',
+  database: 'SiPustaka',
+  driver: 'ODBC Driver 18 for SQL Server',
   options: {
+    trustedConnection: true,
     trustServerCertificate: true,
-  },
-  driver: 'msnodesqlv8',
-};
-
-const connectDB = async () => {
-  try {
-    const pool = await sql.connect(config);
-    console.log('✅ Connected with Windows Auth');
-    return pool;
-  } catch (err) {
-    console.error('❌ Connection failed:', err);
-    throw err;
   }
 };
 
-module.exports = { sql, connectDB };
+const poolPromise = new sql.ConnectionPool(config)
+  .connect()
+  .then(pool => {
+    console.log('✅ SQL Server connected');
+    return pool;
+  })
+  .catch(err => {
+    console.error('❌ DB Connection Failed:', err);
+  });
+
+module.exports = { sql, poolPromise };
